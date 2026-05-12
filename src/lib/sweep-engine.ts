@@ -16,12 +16,15 @@ export function simulateSweep(inputs: LoanInputs): MoneyMapResult {
     monthsRemaining,
     monthlyIncome,
     monthlyExpenses,
+    propertyTaxAnnual,
+    homeInsuranceAnnual,
     incomeFrequency,
     expenseDayOffset,
     helocRate,
   } = inputs;
 
-  const originalTotalInterest = currentMonthlyPayment * monthsRemaining - currentBalance;
+  const annualEscrow = propertyTaxAnnual + homeInsuranceAnnual;
+  const originalTotalInterest = (currentMonthlyPayment + annualEscrow / 12) * monthsRemaining - currentBalance;
 
   const startDate = new Date();
   let balance = currentBalance;

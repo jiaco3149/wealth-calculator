@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { simulateSweep } from '@/lib/sweep-engine';
+import { MoneyMapPDF, DownloadButton } from '@/components/MoneyMapPDF';
 import type { LoanInputs, MoneyMapResult } from '@/lib/types';
 
 interface Props {
@@ -11,7 +12,6 @@ interface Props {
 
 export function MoneyMapDashboard({ inputs, onReset }: Props) {
   const [result, setResult] = useState<MoneyMapResult | null>(null);
-  const dashboardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const r = simulateSweep(inputs);
@@ -31,10 +31,15 @@ export function MoneyMapDashboard({ inputs, onReset }: Props) {
     year: 'numeric', month: 'long', day: 'numeric'
   });
 
-  const origYears = Math.floor(result.originalTotalInterest / (inputs.currentMonthlyPayment * 12) * 10) / 10;
+  const annualEscrow = inputs.propertyTaxAnnual + inputs.homeInsuranceAnnual;
+  const currentTotalMonthly = inputs.currentMonthlyPayment + annualEscrow / 12;
+  const origYears = Math.round(result.originalTotalInterest / (currentTotalMonthly * 12) * 10) / 10;
+  const pctSaved = result.originalTotalInterest > 0 
+    ? Math.round((result.interestSaved / result.originalTotalInterest) * 100) 
+    : 0;
 
   return (
-    <div ref={dashboardRef} className="max-w-4xl mx-auto space-y-8 pb-20 animate-fade-in">
+    <div className="max-w-4xl mx-auto space-y-8 pb-20 animate-fade-in">
       {/* Freedom Date */}
       <section className="text-center py-10 border-b border-zinc-800">
         <p className="text-xs uppercase tracking-[0.2em] text-zinc-500 mb-3">Your Debt Freedom Date</p>
@@ -46,17 +51,16 @@ export function MoneyMapDashboard({ inputs, onReset }: Props) {
 
       {/* Comparison */}
       <section className="grid sm:grid-cols-2 gap-6">
-        {/* Current */}
         <div className="p-6 rounded-xl bg-zinc-900/60 border border-zinc-800">
           <h3 className="text-xs uppercase tracking-[0.15em] text-zinc-500 mb-4">Current Mortgage</h3>
           <div className="space-y-4">
             <StatRow label="Payoff Date" value={`~${origYears} years from now`} />
             <StatRow label="Total Interest" value={usd(result.originalTotalInterest)} />
-            <StatRow label="Monthly Payment" value={usd(inputs.currentMonthlyPayment)} />
+            <StatRow label="Monthly P&I" value={usd(inputs.currentMonthlyPayment)} />
+            {annualEscrow > 0 && <StatRow label="+ Taxes & Insurance" value={usd(annualEscrow / 12) + '/mo'} />}
           </div>
         </div>
 
-        {/* WealthBuilder */}
         <div className="p-6 rounded-xl bg-zinc-900/60 border border-amber-500/30">
           <h3 className="text-xs uppercase tracking-[0.15em] text-amber-500 mb-4">WealthBuilder Plan</h3>
           <div className="space-y-4">
@@ -67,6 +71,13 @@ export function MoneyMapDashboard({ inputs, onReset }: Props) {
         </div>
       </section>
 
+      {/* Savings Box */}
+      <section className="p-6 rounded-xl bg-emerald-950/30 border border-emerald-800/40 text-center">
+        <p className="text-xs uppercase tracking-[0.15em] text-emerald-500 mb-2">Total Interest Savings</p>
+        <p className="text-3xl font-bold text-emerald-400">{usd(result.interestSaved)}</p>
+        <p className="text-sm text-emerald-600 mt-1">{pctSaved}% less interest over the life of your loan</p>
+      </section>
+
       {/* Interest Comparison Bar */}
       <section className="p-6 rounded-xl bg-zinc-900/60 border border-zinc-800">
         <h3 className="text-xs uppercase tracking-[0.15em] text-zinc-500 mb-5">Interest Cost Over Life of Loan</h3>
@@ -74,16 +85,11 @@ export function MoneyMapDashboard({ inputs, onReset }: Props) {
           <BarRow label="Current Mortgage" value={result.originalTotalInterest} max={result.originalTotalInterest} muted />
           <BarRow label="WealthBuilder" value={result.totalInterestPaid} max={result.originalTotalInterest} />
         </div>
-        <p className="text-center text-xl font-bold text-emerald-400 mt-5">
-          You save {usd(result.interestSaved)} in interest
-        </p>
       </section>
 
       {/* Amortization Mugging */}
       <section className="p-6 rounded-xl bg-red-950/30 border border-red-900/40">
-        <h3 className="text-xs uppercase tracking-[0.15em] text-red-400 mb-3">
-          The Amortization Mugging
-        </h3>
+        <h3 className="text-xs uppercase tracking-[0.15em] text-red-400 mb-3">The Amortization Mugging</h3>
         <p className="text-sm text-zinc-300 leading-relaxed">
           In the first year of your mortgage, most of every payment goes to <span className="text-white font-medium">interest, not principal</span>.
           You're not paying down your loan — you're renting money at the bank's price.
@@ -116,17 +122,16 @@ export function MoneyMapDashboard({ inputs, onReset }: Props) {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* CTA + Download */}
       <section className="text-center pt-6 border-t border-zinc-800 no-print">
-        <button
-          onClick={() => window.print()}
-          className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-8 py-3.5 rounded-lg transition active:scale-[0.98]"
-        >
-          Save My Money Map
-        </button>
+        <DownloadButton inputs={inputs} result={result}>
+          <button className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-8 py-3.5 rounded-lg transition active:scale-[0.98] mr-4">
+            Download Money Map PDF
+          </button>
+        </DownloadButton>
         <button
           onClick={onReset}
-          className="ml-4 text-zinc-500 hover:text-zinc-300 text-sm underline underline-offset-4"
+          className="text-zinc-500 hover:text-zinc-300 text-sm underline underline-offset-4"
         >
           Try different numbers
         </button>

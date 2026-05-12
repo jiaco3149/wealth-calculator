@@ -5,6 +5,8 @@ export interface LoanInputs {
   monthsRemaining: number;
   monthlyIncome: number;
   monthlyExpenses: number;
+  propertyTaxAnnual: number;
+  homeInsuranceAnnual: number;
   incomeFrequency: 'weekly' | 'biweekly' | 'semimonthly' | 'monthly';
   payDayOffset: number;
   expenseDayOffset: number;
