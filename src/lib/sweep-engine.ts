@@ -2,10 +2,13 @@ import { LoanInputs, MoneyMapResult, MonthlySummary } from './types';
 
 const DAYS_IN_YEAR = 365;
 
-function daysInMonth(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate();
-}
-
+/**
+ * TLS WealthBuilder / 1st Lien HELOC sweep account simulation.
+ * Uses daily simple interest to match TLS's calculator.
+ *
+ * IMPORTANT: monthlyIncome is the PER-DEPOSIT amount (per paycheck).
+ * E.g. $10,937 biweekly = $23,697/month total deposited.
+ */
 export function simulateSweep(inputs: LoanInputs): MoneyMapResult {
   const {
     currentBalance,
@@ -14,7 +17,6 @@ export function simulateSweep(inputs: LoanInputs): MoneyMapResult {
     monthlyIncome,
     monthlyExpenses,
     incomeFrequency,
-    payDayOffset,
     expenseDayOffset,
     helocRate,
   } = inputs;
@@ -24,65 +26,56 @@ export function simulateSweep(inputs: LoanInputs): MoneyMapResult {
   const startDate = new Date();
   let balance = currentBalance;
   let cumulativeInterest = 0;
-  let cumulativePrincipal = 0;
-
   const monthlySummaries: MonthlySummary[] = [];
-
   const maxMonths = 600;
-  let month = 0;
 
-  while (balance > 1 && month < maxMonths) {
+  for (let month = 0; month < maxMonths && balance > 0.1; month++) {
     const year = startDate.getFullYear() + Math.floor((startDate.getMonth() + month) / 12);
-    const m = (startDate.getMonth() + month) % 12;
-    const daysThisMonth = daysInMonth(year, m);
+    const mm = (startDate.getMonth() + month) % 12;
+    const daysInMon = new Date(year, mm + 1, 0).getDate();
 
+    const monthStartBalance = balance;
     let monthIncomeReceived = 0;
     let monthExpensesPaid = 0;
-    let currentMonthInterest = 0;
-    const monthStartBalance = balance;
+    let monthInterest = 0;
 
-    // Income periods per month
-    const incomePerPeriod = monthlyIncome / getPaymentCount(incomeFrequency);
-    const incomeDays = getIncomeDays(incomeFrequency, payDayOffset, daysThisMonth);
-    const expenseDays = getExpenseDays(expenseDayOffset, daysThisMonth);
+    // Pre-calculate deposit days for this month
+    const depositDays = getDepositDays(incomeFrequency, month, startDate);
 
-    for (let day = 0; day < daysThisMonth; day++) {
-      // Income deposits (reduce balance)
-      if (incomeDays.includes(day)) {
-        balance -= incomePerPeriod;
-        monthIncomeReceived += incomePerPeriod;
+    for (let day = 1; day <= daysInMon; day++) {
+      // 1. Deposit(s) reduce balance (paycheck into HELOC)
+      if (depositDays.has(day)) {
+        balance -= monthlyIncome;
+        monthIncomeReceived += monthlyIncome;
+        if (balance < 0) balance = 0;
       }
 
-      // Expense withdrawals (increase balance - drawing on HELOC)
-      if (expenseDays.includes(day)) {
+      // 2. Daily interest accrues on current balance
+      const dailyInterest = (balance * helocRate / 100) / DAYS_IN_YEAR;
+      if (dailyInterest > 0) {
+        balance += dailyInterest;
+        cumulativeInterest += dailyInterest;
+        monthInterest += dailyInterest;
+      }
+
+      // 3. Expenses increase balance (paid from HELOC)
+      if (day === expenseDayOffset + 1) {
         balance += monthlyExpenses;
         monthExpensesPaid += monthlyExpenses;
       }
-
-      // Don't let balance go below 0 (overpaying HELOC)
-      if (balance < 0) balance = 0;
-
-      // Daily simple interest
-      const dailyInterest = (balance * helocRate / 100) / DAYS_IN_YEAR;
-      balance += dailyInterest;
-      cumulativeInterest += dailyInterest;
-      currentMonthInterest += dailyInterest;
     }
 
-    cumulativePrincipal = currentBalance - balance;
-
+    const principalPaid = monthStartBalance - balance;
     monthlySummaries.push({
-      month: `${year}-${String(m + 1).padStart(2, '0')}`,
+      month: `${year}-${String(mm + 1).padStart(2, '0')}`,
       startBalance: round(monthStartBalance),
       endBalance: round(balance),
-      interestCharged: round(currentMonthInterest),
-      principalPaid: round(monthStartBalance - balance),
+      interestCharged: round(monthInterest),
+      principalPaid: round(principalPaid),
       totalIncome: round(monthIncomeReceived),
       totalExpenses: round(monthExpensesPaid),
       avgBalance: round((monthStartBalance + balance) / 2),
     });
-
-    month++;
   }
 
   const totalMonths = monthlySummaries.length;
@@ -106,35 +99,34 @@ export function simulateSweep(inputs: LoanInputs): MoneyMapResult {
   };
 }
 
-function getPaymentCount(frequency: string): number {
-  switch (frequency) {
-    case 'weekly': return 4;
-    case 'biweekly': return 2;
-    case 'semimonthly': return 2;
-    case 'monthly': return 1;
-    default: return 1;
-  }
-}
+function getDepositDays(frequency: string, monthNum: number, startDate: Date): Set<number> {
+  const year = startDate.getFullYear() + Math.floor((startDate.getMonth() + monthNum) / 12);
+  const mm = (startDate.getMonth() + monthNum) % 12;
+  const dim = new Date(year, mm + 1, 0).getDate();
 
-function getIncomeDays(frequency: string, offset: number, daysInMonth: number): number[] {
+  const days = new Set<number>();
+
   switch (frequency) {
     case 'weekly':
-      return [0, 7, 14, 21, 28].filter(d => d < daysInMonth);
-    case 'biweekly':
-      return ((offset % 14) < daysInMonth ? [offset % 14] : []).concat(
-        (offset + 14) % daysInMonth < daysInMonth ? [(offset + 14) % daysInMonth] : []
-      );
+      for (let d = 1; d <= dim; d += 7) days.add(d);
+      break;
+    case 'biweekly': {
+      // Track from year start for consistency
+      const dayOfYear = ((year - 2024) * 365 + Math.floor(monthNum)) % 14;
+      const firstDeposit = ((14 - dayOfYear) % 14) + 1;
+      for (let d = firstDeposit; d <= dim; d += 14) days.add(d);
+      break;
+    }
     case 'semimonthly':
-      return [Math.min(offset, daysInMonth - 1), Math.min(offset + 15, daysInMonth - 1)].filter((v, i, a) => a.indexOf(v) === i);
+      days.add(1);
+      if (dim >= 15) days.add(15);
+      break;
     case 'monthly':
-      return [Math.min(offset, daysInMonth - 1)];
-    default:
-      return [0];
+      days.add(1);
+      break;
   }
-}
 
-function getExpenseDays(offset: number, daysInMonth: number): number[] {
-  return [Math.min(offset, daysInMonth - 1)];
+  return days;
 }
 
 function round(val: number): number {
