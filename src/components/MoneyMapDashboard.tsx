@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { simulateSweep } from '@/lib/sweep-engine';
-import { MoneyMapPDF, DownloadButton } from '@/components/MoneyMapPDF';
+import { DownloadButton } from '@/components/MoneyMapPDF';
 import type { LoanInputs, MoneyMapResult } from '@/lib/types';
 
 interface Props {

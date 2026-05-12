@@ -159,18 +159,6 @@ export function CalculatorForm({ onCalculate }: Props) {
         </div>
       </section>
 
-      {/* HELOC */}
-      <section className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800/60">
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-zinc-400 mb-4">HELOC Rate</h3>
-        <Field
-          label="Proposed HELOC Interest Rate"
-          value={inputs.helocRate}
-          onChange={num('helocRate')}
-          suffix="%"
-          tooltip="The rate on the 1st lien HELOC. Your lender will quote this as index + margin (e.g., Prime + 1%). Current Prime is ~8.5%."
-        />
-      </section>
-
       <button
         type="submit"
         className="w-full bg-amber-500 hover:bg-amber-400 text-black font-semibold py-3.5 rounded-lg transition active:scale-[0.98] text-base"

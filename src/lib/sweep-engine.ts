@@ -1,5 +1,8 @@
 import { LoanInputs, MoneyMapResult, MonthlySummary } from './types';
 
+/** Default HELOC rate for WealthBuilder calculations */
+export const DEFAULT_HELOC_RATE = 8.5;
+
 const DAYS_IN_YEAR = 365;
 
 /**
@@ -20,8 +23,9 @@ export function simulateSweep(inputs: LoanInputs): MoneyMapResult {
     homeInsuranceAnnual,
     incomeFrequency,
     expenseDayOffset,
-    helocRate,
   } = inputs;
+
+  const helocRate = DEFAULT_HELOC_RATE;
 
   const annualEscrow = propertyTaxAnnual + homeInsuranceAnnual;
   const originalTotalInterest = (currentMonthlyPayment + annualEscrow / 12) * monthsRemaining - currentBalance;
