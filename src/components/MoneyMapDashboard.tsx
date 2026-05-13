@@ -1,17 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { simulateSweep } from '@/lib/sweep-engine';
 import { openMoneyMapPDF } from '@/lib/generate-report';
 import type { LoanInputs, MoneyMapResult } from '@/lib/types';
 
 interface Props {
   inputs: LoanInputs;
-  result: MoneyMapResult;
-  onReset?: () => void;
+  onReset: () => void;
 }
 
-export function MoneyMapDashboard({ inputs, result: precomputedResult, onReset }: Props) {
-  const [result] = useState<MoneyMapResult | null>(precomputedResult);
+export function MoneyMapDashboard({ inputs, onReset }: Props) {
+  const [result, setResult] = useState<MoneyMapResult | null>(null);
+
+  useEffect(() => {
+    if (inputs) {
+      setResult(simulateSweep(inputs));
+    }
+  }, [inputs]);
 
   if (!result) {
     return (
@@ -29,8 +35,8 @@ export function MoneyMapDashboard({ inputs, result: precomputedResult, onReset }
   const annualEscrow = inputs.propertyTaxAnnual + inputs.homeInsuranceAnnual;
   const currentTotalMonthly = inputs.currentMonthlyPayment + annualEscrow / 12;
   const origYears = Math.round(result.originalTotalInterest / (currentTotalMonthly * 12) * 10) / 10;
-  const pctSaved = result.originalTotalInterest > 0 
-    ? Math.round((result.interestSaved / result.originalTotalInterest) * 100) 
+  const pctSaved = result.originalTotalInterest > 0
+    ? Math.round((result.interestSaved / result.originalTotalInterest) * 100)
     : 0;
 
   return (
@@ -87,10 +93,10 @@ export function MoneyMapDashboard({ inputs, result: precomputedResult, onReset }
         <h3 className="text-xs uppercase tracking-[0.15em] text-red-400 mb-3">The Amortization Mugging</h3>
         <p className="text-sm text-zinc-300 leading-relaxed">
           In the first year of your mortgage, most of every payment goes to <span className="text-white font-medium">interest, not principal</span>.
-          You're not paying down your loan — you're renting money at the bank's price.
+          You&apos;re not paying down your loan — you&apos;re renting money at the bank&apos;s price.
         </p>
         <p className="text-sm text-zinc-400 mt-3">
-          Your current loan: <span className="text-white">{inputs.currentRate}%</span> rate means roughly{' '}
+          Your current loan: <span className="text-white">{inputs.currentRate}%</span> rate means roughly&apos; &apos;
           <span className="text-white font-semibold">{Math.round(inputs.currentRate / 3 * 10) / 10}%</span> of each payment is pure bank profit in year one.
         </p>
       </section>
