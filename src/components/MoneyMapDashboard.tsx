@@ -1,22 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { simulateSweep } from '@/lib/sweep-engine';
+import { useState } from 'react';
 import { openMoneyMapPDF } from '@/lib/generate-report';
 import type { LoanInputs, MoneyMapResult } from '@/lib/types';
 
 interface Props {
   inputs: LoanInputs;
-  onReset: () => void;
+  result: MoneyMapResult;
+  onReset?: () => void;
 }
 
-export function MoneyMapDashboard({ inputs, onReset }: Props) {
-  const [result, setResult] = useState<MoneyMapResult | null>(null);
-
-  useEffect(() => {
-    const r = simulateSweep(inputs);
-    setResult(r);
-  }, [inputs]);
+export function MoneyMapDashboard({ inputs, result: precomputedResult, onReset }: Props) {
+  const [result] = useState<MoneyMapResult | null>(precomputedResult);
 
   if (!result) {
     return (
