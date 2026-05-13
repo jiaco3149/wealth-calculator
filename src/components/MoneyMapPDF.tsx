@@ -1,27 +1,20 @@
-'use client';
-
-import { PDFDownloadLink } from '@react-pdf/renderer';
 import dynamic from 'next/dynamic';
 import type { MoneyMapResult, LoanInputs } from '@/lib/types';
+import type { ReactNode } from 'react';
 
-// Load the PDF document renderer only on the client
-const MoneyMapPDF = dynamic(
-  () => import('./MoneyMapPDFClient').then(m => m.MoneyMapPDF),
-  { ssr: false, loading: () => null }
+const PDFDownloadLinkClient = dynamic(
+  () => import('./PDFDownloadLink'),
+  { ssr: false, loading: () => <button disabled className="bg-zinc-700 text-zinc-500 font-semibold px-8 py-3.5 rounded-lg">Loading...</button> }
 );
 
 export function DownloadButton({ inputs, result, children }: {
   inputs: LoanInputs;
   result: MoneyMapResult;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
-    <PDFDownloadLink
-      document={<MoneyMapPDF inputs={inputs} result={result} />}
-      fileName={`UnMortgage_Money_Map_${new Date().toISOString().split('T')[0]}.pdf`}
-      style={{ display: 'inline-block', textDecoration: 'none' }}
-    >
-      {({ loading }) => loading ? 'Generating PDF...' : children}
-    </PDFDownloadLink>
+    <PDFDownloadLinkClient inputs={inputs} result={result}>
+      {children}
+    </PDFDownloadLinkClient>
   );
 }

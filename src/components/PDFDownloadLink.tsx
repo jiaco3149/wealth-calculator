@@ -1,11 +1,23 @@
 'use client';
 
-import dynamic from 'next/dynamic';
+import { PDFDownloadLink as PDFDownloadLinkRaw } from '@react-pdf/renderer';
+import { MoneyMapPDF } from './MoneyMapPDFClient';
+import type { MoneyMapResult, LoanInputs } from '@/lib/types';
 
-// Import PDFDownloadLink client-only to avoid SSR canvas errors
-const PDFDownloadLink = dynamic(
-  () => import('@react-pdf/renderer').then(mod => mod.PDFDownloadLink),
-  { ssr: false }
-);
+function PDFDownloadLink({ inputs, result, children }: {
+  inputs: LoanInputs;
+  result: MoneyMapResult;
+  children: React.ReactNode;
+}) {
+  return (
+    <PDFDownloadLinkRaw
+      document={<MoneyMapPDF inputs={inputs} result={result} /> as any}
+      fileName={`UnMortgage_Money_Map_${new Date().toISOString().split('T')[0]}.pdf`}
+      style={{ display: 'inline-block', textDecoration: 'none' }}
+    >
+      {({ loading }) => loading ? 'Generating PDF...' : children}
+    </PDFDownloadLinkRaw>
+  );
+}
 
-export { PDFDownloadLink };
+export default PDFDownloadLink;
