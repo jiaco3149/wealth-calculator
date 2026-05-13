@@ -1,12 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { simulateSweep } from '@/lib/sweep-engine';
 import { CalculatorForm } from '@/components/CalculatorForm';
 import { MoneyMapDashboard } from '@/components/MoneyMapDashboard';
-import type { LoanInputs } from '@/lib/types';
+import type { LoanInputs, MoneyMapResult } from '@/lib/types';
 
 export default function Home() {
   const [inputs, setInputs] = useState<LoanInputs | null>(null);
+  const [result, setResult] = useState<MoneyMapResult | null>(null);
+
+  const handleCalculate = (nextInputs: LoanInputs) => {
+    setInputs(nextInputs);
+    setResult(simulateSweep(nextInputs));
+  };
 
   return (
     <main className="min-h-screen bg-zinc-950 text-zinc-100 p-6">
@@ -19,10 +26,10 @@ export default function Home() {
         </p>
       </header>
 
-      {!inputs ? (
-        <CalculatorForm onCalculate={setInputs} />
+      {!inputs || !result ? (
+        <CalculatorForm onCalculate={handleCalculate} />
       ) : (
-        <MoneyMapDashboard inputs={inputs} onReset={() => setInputs(null)} />
+        <MoneyMapDashboard inputs={inputs} result={result} onReset={() => { setInputs(null); setResult(null); }} />
       )}
     </main>
   );
