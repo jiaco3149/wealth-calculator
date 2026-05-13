@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { simulateSweep } from '@/lib/sweep-engine';
-import { DownloadButton } from '@/components/MoneyMapPDF';
+import { openMoneyMapPDF } from '@/lib/generate-report';
 import type { LoanInputs, MoneyMapResult } from '@/lib/types';
 
 interface Props {
@@ -124,11 +124,12 @@ export function MoneyMapDashboard({ inputs, onReset }: Props) {
 
       {/* CTA + Download */}
       <section className="text-center pt-6 border-t border-zinc-800 no-print">
-        <DownloadButton inputs={inputs} result={result}>
-          <button className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-8 py-3.5 rounded-lg transition active:scale-[0.98] mr-4">
-            Download Money Map PDF
-          </button>
-        </DownloadButton>
+        <button
+          onClick={() => openMoneyMapPDF(inputs, result)}
+          className="bg-amber-500 hover:bg-amber-400 text-black font-semibold px-8 py-3.5 rounded-lg transition active:scale-[0.98] mr-4"
+        >
+          Download Money Map PDF
+        </button>
         <button
           onClick={onReset}
           className="text-zinc-500 hover:text-zinc-300 text-sm underline underline-offset-4"
