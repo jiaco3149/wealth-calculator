@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Your Free Book — UnMortgage Money Map</title>
+<meta name="description" content="Get your free copy of 'Your 30 Year Mortgage is a F@KIN' Joke' plus instant access to the Money Map Calculator.">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--surface:#18181b;--surface2:#27272a;--border:#3f3f46;--text:#f4f4f5;--muted:#71717a;--dim:#52525b;--amber:#f59e0b;--emerald:#10b981;--emerald-dim:#065f46;--red:#dc2626}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+.c{max-width:520px;margin:0 auto;padding:2rem 1.5rem}
+
+/* Hero */
+.hd{text-align:center;padding:2rem 0 1.5rem}
+.hd .tag{font-size:.65rem;text-transform:uppercase;letter-spacing:.2em;color:var(--muted);margin-bottom:1rem}
+.hd h1{font-size:2rem;font-weight:800;line-height:1.2;letter-spacing:-.03em}
+.hd h1 .a{color:var(--amber)}
+.hd .sub{color:var(--muted);font-size:.95rem;margin-top:.75rem;line-height:1.5}
+
+/* Book mockup */
+.bk{background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:2rem;margin-top:1.5rem;text-align:center;position:relative;overflow:hidden}
+.bk::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--amber),var(--emerald))}
+.bk .ic{font-size:3rem;margin-bottom:.75rem}
+.bk h2{font-size:1.25rem;font-weight:700;line-height:1.3}
+.bk .by{font-size:.8rem;color:var(--muted);margin-top:.5rem}
+.bk .bullets{text-align:left;margin-top:1.25rem}
+.bk .bullets div{padding:.4rem 0;font-size:.85rem;color:var(--muted);display:flex;align-items:flex-start;gap:.5rem}
+.bk .bullets div::before{content:'\2713';color:var(--emerald);font-weight:700;flex-shrink:0}
+
+/* Form */
+.fm{background:var(--surface);border:1px solid var(--border);border-radius:1rem;padding:2rem;margin-top:1.5rem}
+.fm h3{font-size:1.1rem;font-weight:700;margin-bottom:.25rem;text-align:center}
+.fm .sub{color:var(--muted);font-size:.85rem;text-align:center;margin-bottom:1.5rem}
+.f{margin-bottom:1rem}
+.f label{display:block;font-size:.75rem;color:var(--muted);margin-bottom:.25rem}
+.iw{position:relative}
+input[type=text],input[type=email],input[type=tel]{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:.5rem;padding:.7rem .75rem;font-size:.9rem;color:var(--text);outline:none}
+input:focus{border-color:var(--amber)}
+.btn{width:100%;background:var(--amber);color:#000;font-weight:700;font-size:1rem;padding:.9rem;border-radius:.5rem;border:none;cursor:pointer;margin-top:.5rem;transition:background .15s,transform .1s}
+.btn:hover{background:#fbbf24}
+.btn:active{transform:scale(.98)}
+.sm{font-size:.7rem;color:var(--dim);text-align:center;margin-top:.75rem;line-height:1.4}
+
+/* Trust bar */
+.tr{display:flex;justify-content:center;gap:2rem;margin-top:2rem;padding:1.5rem 0;border-top:1px solid var(--border);flex-wrap:wrap}
+.tr div{text-align:center}
+.tr .n{font-size:1.5rem;font-weight:700;color:var(--amber)}
+.tr .l{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-top:.25rem}
+
+/* Success state */
+#success{display:none;text-align:center;padding:3rem 0}
+#success .ic{font-size:4rem;margin-bottom:1rem}
+#success h2{font-size:1.5rem;font-weight:700;margin-bottom:.5rem}
+#success p{color:var(--muted);font-size:.95rem;line-height:1.5;margin-bottom:1.5rem}
+#success .btn{max-width:320px;margin:0 auto}
+
+@media(max-width:480px){
+  .hd h1{font-size:1.5rem}
+  .bk{padding:1.5rem}
+  .fm{padding:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<div class="c" id="page">
+  <div class="hd">
+    <div class="tag">Free Book + Calculator Access</div>
+    <h1>Your Loan Officer Is Asking You<br><span class="a">The Wrong Questions</span></h1>
+    <p class="sub">Get the book that tells you what the mortgage industry doesn't want you to know — plus instant access to the Money Map Calculator to see your actual numbers.</p>
+  </div>
+
+  <div class="bk">
+    <div class="ic">&#128214;</div>
+    <h2>Your 30 Year Mortgage<br>is a F@KIN' Joke</h2>
+    <div class="by">by Jason Iacovelli &bull; NMLS #3370</div>
+    <div class="bullets">
+      <div>Why 83% of your early payments go to bank profit</div>
+      <div>The "velocity effect" that makes every dollar work harder</div>
+      <div>How to calculate your exact debt freedom date</div>
+      <div>Why refinancing resets the clock (and who benefits)</div>
+    </div>
+  </div>
+
+  <form class="fm" id="bookForm">
+    <h3>Get Your Free Copy</h3>
+    <p class="sub">Plus instant access to the Money Map Calculator</p>
+    <div class="f"><label>First Name</label><input type="text" id="fname" required placeholder="Your first name"></div>
+    <div class="f"><label>Email Address</label><input type="email" id="email" required placeholder="Where should we send it?"></div>
+    <div class="f"><label>Phone (optional)</label><input type="tel" id="phone" placeholder="(555) 555-5555"></div>
+    <button type="submit" class="btn">Send Me the Book + Calculator</button>
+    <div class="sm">No spam. Unsubscribe anytime. Your info stays private.</div>
+  </form>
+
+  <div id="success">
+    <div class="ic">&#127881;</div>
+    <h2>Check Your Email</h2>
+    <p>Your book download link and calculator access are on the way. While you wait — punch your numbers in and see what's possible.</p>
+    <a href="https://v2-calculator.vercel.app" class="btn">Open the Money Map Calculator</a>
+  </div>
+
+  <div class="tr">
+    <div><div class="n">30+</div><div class="l">Years Experience</div></div>
+    <div><div class="n">#3370</div><div class="l">NMLS License</div></div>
+    <div><div class="n">$535K</div><div class="l">Avg Interest Saved</div></div>
+  </div>
+</div>
+
+<script>
+document.getElementById('bookForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var btn = document.querySelector('.btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+
+  var name = document.getElementById('fname').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var phone = document.getElementById('phone').value.trim();
+
+  // Store locally (fallback)
+  try {
+    localStorage.setItem('umm_name', name);
+    localStorage.setItem('umm_email', email);
+    localStorage.setItem('umm_phone', phone);
+    localStorage.setItem('umm_date', new Date().toISOString());
+  } catch(e) {}
+
+  // POST to our API which creates a contact in GHL
+  fetch('/api/lead', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name: name, email: email, phone: phone})
+  }).catch(function(){});
+
+  // Show success
+  document.getElementById('bookForm').style.display = 'none';
+  document.getElementById('success').style.display = 'block';
+  window.scrollTo(0, 0);
+  btn.textContent = 'Send Me the Book + Calculator';
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>
