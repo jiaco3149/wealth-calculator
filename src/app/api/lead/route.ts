@@ -40,9 +40,6 @@ export async function POST(req: NextRequest) {
 
     if (GHL_API_KEY) {
       try {
-        // Debug: log key length
-        const debug = { keyLen: GHL_API_KEY.length, keyStart: GHL_API_KEY.substring(0, 8) + '...' };
-        console.log('GHL debug:', JSON.stringify(debug));
         const ghlRes = await fetch(
           'https://services.leadconnectorhq.com/contacts/upsert',
           {
@@ -77,7 +74,6 @@ export async function POST(req: NextRequest) {
       success: true,
       ghl: ghlStatus,
       contactId: ghlContactId,
-      debug: GHL_API_KEY ? { keyLen: GHL_API_KEY.length } : { missing: true },
     });
   } catch (err) {
     console.error('Lead API error:', err);
